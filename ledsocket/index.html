@@ -1,0 +1,76 @@
+<html>
+  <head>
+    <style>
+      .color {
+        width: 400px;
+        height: 400px;
+        border: 1px solid black;
+      }
+
+      .box {
+        float: left;
+        width: 40%;
+      }
+
+      .color-input {
+        text-align: right;
+        width: 100%;
+      }
+
+      .header {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+
+    <h1 class="header">Arduino RGB LED Control</h1>
+
+    <div class="box" id="colorPicker">
+      <div class="color-input">
+        Red <input v-model="red" type="number" onchange="colorChanged()"/>
+      </div>
+
+      <div class="color-input">
+        Green <input v-model="green" type="number" onchange="colorChanged()"/>
+      </div>
+
+      <div class="color-input">
+        Blue <input v-model="blue" type="number" onchange="colorChanged()"/>
+      </div>
+    </div>
+
+    <div id="color" class="color box"></div>
+
+    <script src="/vue.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io.connect('http://localhost:8080/');
+
+      var color = {
+        red: 0,
+        green: 0,
+        blue: 0
+      };
+
+      var colorChanged = function() {
+        socket.emit('update color', color);
+        console.log('update color');
+      };
+
+      socket.on('color updated', function(newColor) {
+        color.red = newColor.red;
+        color.blue = newColor.blue;
+        color.green = newColor.green;
+        console.log('color updated');
+        document.getElementById('color').style = 'background-color: rgb('+color.red+','+color.green+','+color.blue+')';
+      });
+
+      new Vue({
+        el: '#colorPicker',
+        data: color
+      });
+
+    </script>
+  </body>
+</html>
